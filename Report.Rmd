@@ -1,0 +1,93 @@
+---
+title: "Harmful Algal Blooms in Lake Lanier"
+output: 
+  html_document:
+    toc: true
+author: Anna Impellitteri
+---
+# Introduction
+
+Lake Sydney Lanier (LSL) in North Georgia serves as a drinking water source for roughly 60-70 percent of the greater metropolitan Atlanta area. This data was collected from May to November 2024 from eight sites in and around Gainesville, GA. Samples were collected weekly for the time period with some water quality (WQ) measurements conducted in the field and others through laboratory analysis. A portable microscope (ioLight) was used for algal identification which connects to an artificial intelligence (AI) program (BloomOptix) through a mobile phone application. The AI program provided results including identification, colony count estimates, and cell counts for primarily Microcystis sp. and Dolichospermum sp., among a few other cyanobacterial genera. Results will be presented for regression analyses on cell counts, cyanotoxin concentrations, and field/laboratory WQ measurements to identify relationships among the measured parameters. 
+```{r here-i-am, include = FALSE}
+here::i_am(
+  "Report.Rmd"
+)
+
+library(yaml)
+config <- yaml::read_yaml("habs_config.yaml") 
+knitr::opts_chunk$set(echo = config$show_code)  # Set echo based on config
+```
+
+```{r data, include=FALSE}
+
+clean_habs_data <- readRDS(here::here("output", "clean_habs_data.rds"))
+
+head(clean_habs_data)
+
+```
+
+## Sample Sites
+
+A map of the sample sites around LSL is displayed below.
+```{r map}
+
+library(ggplot2)
+library(tmap)
+
+site_map <- readRDS(here::here("output", "map.rds"))
+
+site_map
+```
+
+# Descriptive Analysis
+
+## Tabular Analysis
+
+The table below summarizes the average cell densities and phycocyanin levels by tertile categories of phycocyanin levels (Low, Medium, High).  
+
+```{r table}
+library(gtsummary)
+
+table <- readRDS(here::here("output", "summary_table.rds"))
+
+table
+```
+
+## Graphical Analysis
+
+The figures below report microcystis and dolichospermum, respectively as a function of phycocyanin levels.
+```{r graphs_extract}
+library(ggplot2)
+library(here)
+
+plots <- readRDS(here::here("output", "plots.rds"))
+```
+
+```{r micro, message =FALSE, warning= FALSE}
+plots$micro_plot
+```
+
+```{r doli, message =FALSE, warning= FALSE}
+plots$doli_plot
+```
+
+# Regression Analysis
+
+## Primary models
+
+In this analysis, we generate linear regression models demonstrating the relationship between phycocyanin, an algal pigment, and the AI detection of microcyctis and dolichospermum, toxin-producing algal species. 
+```{r regressions}
+
+regs <- readRDS(here::here("output", "regressions.rds"))
+
+```
+
+```{r tbl1}
+regs$tbl1
+```
+
+```{r tbl2}
+regs$tbl2
+```
+
+A p-value of <0.001 indicates that phycocyanin field measurements may correlated with the detection of mycrocystin, but not Dolichospermum. Due to the low beta values, future analysis will assess for multicollinearity and overfitting. 
